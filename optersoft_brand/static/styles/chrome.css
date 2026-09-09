@@ -1,0 +1,46 @@
+/* The Optersoft chrome, as CSS. A site's root stylesheet imports this right
+   after `tailwindcss` (and after any `@plugin` it adds):
+
+       @import "tailwindcss";
+       @import "../../brand/optersoft_brand/static/styles/chrome.css";
+
+   A frontage site copies this directory into its output with `STATIC` in `site.py`, so the
+   fonts the brand reaches by relative URL land beside it.
+
+   Everything in here is relative to THIS file, which is what lets it live in a
+   package: `@source` registers the chrome's own components with Tailwind (they
+   sit outside the site's tree, and Tailwind's automatic detection would never
+   look inside a dependency), and brand.css reaches its fonts by relative URL. */
+
+/* Class-based dark mode, keyed on `.dark` on <html> — set before paint by the
+   theme script in Layout.astro and flipped by the toggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* The brand — typeface and palette. After `tailwindcss`, or the default theme wins. */
+@import "./brand.css";
+
+/* The three-way theme (light / gray / dark). Unlayered on purpose. */
+@import "./theme.css";
+
+/* The chrome's components, so their utility classes are generated. Tailwind never looks
+   inside a dependency on its own, and every class name this chrome uses is written in the
+   Python next to this file. */
+@source "../../";
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--color-slate-50);
+  color: var(--color-slate-900);
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark body {
+  background-color: var(--color-slate-950);
+  color: var(--color-slate-100);
+}

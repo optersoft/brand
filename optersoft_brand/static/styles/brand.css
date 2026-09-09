@@ -1,0 +1,92 @@
+/* The Optersoft brand — typeface and palette — in one file.
+ *
+ * There are three copies of this file — here, `astro/src/styles/brand.css` and
+ * `dioxus-chrome/assets/brand.css` — and they differ in exactly four lines: the
+ * `@font-face` URLs. Astro's are relative (`../fonts/…`) because Vite resolves
+ * and hashes them; the Dioxus apps serve theirs from `/fonts/…`; and here they
+ * are `/brand/fonts/…`, which is where a site's `STATIC = [(optersoft_brand.static,
+ * "brand")]` puts them, because Tailwind's CLI does not rewrite a `url()` it
+ * reads through an `@import`.
+ *
+ * Same-origin is the property that matters in all three: optersoft.com's privacy
+ * notice says reading it makes no third-party request, and every site here keeps
+ * that true.
+ *
+ * ⚠ THIS repository is meant to become the one copy. Until it is, a brand change
+ * is three commits, and the four `url()` lines are the only place they may
+ * differ — see the note in ISLAND.md §6.
+ *
+ * `styles/chrome.css` imports this AFTER `tailwindcss`, or the default theme
+ * wins.
+ */
+
+/* Both families are VARIABLE — one file spans 300–800, which is why there are
+   four files and not sixteen. */
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/brand/fonts/hanken-grotesk.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/brand/fonts/hanken-grotesk-italic.woff2") format("woff2");
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/brand/fonts/jetbrains-mono.woff2") format("woff2");
+  font-weight: 300 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/brand/fonts/jetbrains-mono-italic.woff2") format("woff2");
+  font-weight: 300 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* ── One neutral, under both spellings ────────────────────────────────────
+   *
+   * The brand neutral is Tailwind's `slate` — very slightly blue, which is what
+   * keeps it from looking grey next to the accent. Academy's markup is written
+   * in `gray-*` across ~880 content pages and every component; site's is `slate-*`.
+   * Rewriting either would be a enormous diff for a colour decision.
+   *
+   * So `gray-*` is REMAPPED onto the slate ramp instead. Both spellings now
+   * render the same colour, no markup changes anywhere, and a future page
+   * written in either is still on-brand. The cost is that `gray` no longer means
+   * Tailwind's gray in these apps — which is why it is written down here rather
+   * than discovered.
+   */
+  /* ⚠ LITERAL values, not `var(--color-slate-N)`. The indirection worked in the
+   * browser and broke the one thing that checks this palette: academy's
+   * `every_rendered_colour_pair_clears_aa` parses the compiled CSS for oklch
+   * triples and computes WCAG contrast. Given a `var()` it parsed nothing, and —
+   * because it is a well-built test — refused to pass vacuously rather than
+   * silently verifying an empty set.
+   *
+   * So the ramp is written out. It is Tailwind's `slate`, copied from a compiled
+   * build. If Tailwind ever changes those values the two drift, and the contrast
+   * test is what would notice. */
+  --color-gray-50: oklch(98.4% 0.003 247.858);
+  --color-gray-100: oklch(96.8% 0.007 247.896);
+  --color-gray-200: oklch(92.9% 0.013 255.508);
+  --color-gray-300: oklch(86.9% 0.022 252.894);
+  --color-gray-400: oklch(70.4% 0.04 256.788);
+  --color-gray-500: oklch(55.4% 0.046 257.417);
+  --color-gray-600: oklch(44.6% 0.043 257.281);
+  --color-gray-700: oklch(37.2% 0.044 257.287);
+  --color-gray-800: oklch(27.9% 0.041 260.031);
+  --color-gray-900: oklch(20.8% 0.042 265.755);
+  --color-gray-950: oklch(12.9% 0.042 264.695);
+}

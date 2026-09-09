@@ -1,0 +1,36 @@
+/* The fleet's three-way theme, the CSS half — a copy of `dioxus_chrome::THEME_CSS`
+   (dioxus/dioxus-chrome/src/theme.rs). Keep the two equal.
+
+   `.gray` on <html> is a LIGHT-family theme: it remaps the light surface
+   utilities to a mid-gray "paper" and leaves the `dark:` styling untouched.
+   Only true `.dark` renders dark. The theme overrides by CLASS NAME, which is
+   why both the `gray-*` and the `slate-*` spelling of every surface is here:
+   brand.css maps the two names onto one ramp, but a rule keyed on `.bg-gray-50`
+   does nothing for a page written in `bg-slate-50`.
+
+   Unlayered on purpose — imported into the root stylesheet as plain CSS, it
+   beats Tailwind's `@layer utilities` regardless of source order. */
+.gray body         { background-color: #d9dde3; color: #1f2430; }
+.gray .bg-white    { background-color: #e2e5ea; }
+.gray .bg-gray-50  { background-color: #d9dde3; }
+.gray .bg-gray-100 { background-color: #ced3da; }
+.gray .bg-gray-200 { background-color: #c2c8d0; }
+.gray .bg-gray-300 { background-color: #b6bcc6; }
+.gray .bg-slate-50  { background-color: #d9dde3; }
+.gray .bg-slate-100 { background-color: #ced3da; }
+.gray .bg-slate-200 { background-color: #c2c8d0; }
+.gray .bg-slate-300 { background-color: #b6bcc6; }
+
+/* Theme-picker summary glyph: show only the active theme's icon. */
+#theme-details .ic-gray,
+#theme-details .ic-moon { display: none; }
+.dark #theme-details .ic-sun  { display: none; }
+.dark #theme-details .ic-moon { display: block; }
+.gray #theme-details .ic-sun  { display: none; }
+.gray #theme-details .ic-gray { display: block; }
+
+/* Active-row highlight in the dropdown (live theme is client-only → CSS-driven). */
+html:not(.dark):not(.gray) #theme-menu .opt-light,
+.gray #theme-menu .opt-gray,
+.dark #theme-menu .opt-dark { color: #2563eb; font-weight: 600; }
+.dark #theme-menu .opt-dark { color: #60a5fa; }
