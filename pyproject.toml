@@ -5,7 +5,7 @@ description = "The Optersoft chrome for frontage sites: layout, header, footer, 
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "Optersoft, S.L.", email = "david@optersoft.com" }]
-dependencies = ["frontage>=0.13.6"]
+dependencies = ["frontage>=0.13.7"]
 
 [build-system]
 requires = ["hatchling"]
