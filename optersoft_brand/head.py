@@ -6,7 +6,7 @@ site template already owns (`charset`, the viewport, `<html>` itself).
 """
 
 from frontage import h
-from frontage.head import Meta, Title
+from frontage.head import Meta, Tag, Title
 
 from . import theme
 
@@ -45,6 +45,11 @@ def head(
 
     A crawler, a search result and the preview card a chat app shows for your link read this
     HTML and never run the page, which is the whole reason it is written at build time.
+
+    Every one of these renders nothing where it stands: `Title` and `Meta` write what a page
+    says about itself, and `Tag` — the links, the icons, the pre-paint script — puts a whole
+    element in the `<head>`. A layout that returned a bare `h.link` put a `<link>` in the
+    *body*, which is where a browser will happily leave it and no crawler will look.
     """
     tags = [
         Title(title),
@@ -62,16 +67,16 @@ def head(
         Meta(theme.BAR["light"], name="theme-color"),
     ]
     if canonical:
-        tags += [h.link(rel="canonical", href=canonical), Meta(canonical, property="og:url")]
+        tags += [Tag(h.link(rel="canonical", href=canonical)), Meta(canonical, property="og:url")]
     if locale:
         tags.append(Meta(locale, property="og:locale"))
     if image:
         tags += [Meta(image, property="og:image"), Meta(image, name="twitter:image")]
     for href, rel, kind, sizes in icons or ():
-        tags.append(h.link(rel=rel, href=href, type=kind, sizes=sizes))
+        tags.append(Tag(h.link(rel=rel, href=href, type=kind, sizes=sizes)))
     if manifest:
-        tags.append(h.link(rel="manifest", href=manifest))
+        tags.append(Tag(h.link(rel="manifest", href=manifest)))
     # Inline, and first: it is what stops a flash of the wrong colour scheme, and nothing
     # that has to be fetched can do that.
-    tags.append(h.script(theme.APPLY))
+    tags.append(Tag(h.script(theme.APPLY)))
     return tags
