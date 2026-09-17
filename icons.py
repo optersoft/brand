@@ -32,6 +32,11 @@ Everything below is derived from that geometry and the tracked `hanken-grotesk.w
     uv run icons.py --site DIR  # a site's own `public/`: the favicons at the LITERAL names a
                                # page links them by, plus the two `android-chrome-*` sizes
                                # the web manifest and the schema.org `logo` name
+    uv run icons.py --render mark:96 out.png     # one file, for an app that asks for its own
+    uv run icons.py --render tile:512 logo.png   # size: `mark` is the bare mark, `tile` the
+    uv run icons.py --render ico:16,32,48 f.ico  # square white-on-blue, `ico` a multi-size icon
+    uv run icons.py --rust PATH.rs               # the mark as a generated Rust module, for the
+                                                 # Dioxus chrome to inline (no asset to fetch)
 
 Needs `rsvg-convert` (librsvg) on PATH for the rasters.
 """
@@ -258,8 +263,66 @@ def write_site(public: Path) -> list[Path]:
     return made
 
 
+RUST = '''//! The Optersoft mark, as data. **Generated — do not edit.**
+//!
+//! Written by `icons.py --rust` in the `brand` checkout, which holds the geometry: the mark is
+//! the *o* of "optersoft" carrying the wordmark's two weights, and in a word it is the
+//! uppercase O, scaled to the height of the `f`. Regenerate it there; never retype a path.
+
+/// The mark's outline, as an SVG `d` attribute, in the [`VIEW_BOX`] coordinate system.
+pub const PATH: &str = "{d}";
+
+/// The letter's box: its advance width by its height, the baseline {overshoot:.0f} units up from the bottom.
+pub const VIEW_BOX: &str = "{view_box}";
+
+/// The brand blue the mark is drawn in.
+pub const FILL: &str = "{fill}";
+
+/// Inline style that puts the mark where the glyph would sit: the height and the baseline shift
+/// are em fractions of the surrounding text, and the negative margin repeats `tracking-tight`,
+/// which letter-spacing applies after a character but not after an element.
+pub const STYLE: &str = "height:{height:.3f}em;vertical-align:{shift:.3f}em;margin-right:-.025em";
+'''
+
+
+def write_rust(path: Path) -> list[Path]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        RUST.format(d=LETTER_PATH, view_box=LETTER_VIEWBOX, fill=BLUE, overshoot=OVERSHOOT * K,
+                    height=LETTER_HEIGHT_EM, shift=LETTER_SHIFT_EM)
+    )
+    return [path]
+
+
+def render(spec: str, out: Path) -> list[Path]:
+    """One file from a spec: `mark:<px>`, `tile:<px>` or `ico:<px>,<px>,…`."""
+    kind, _, rest = spec.partition(":")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if kind == "ico":
+        sizes = sorted(int(v) for v in rest.split(","))
+        frames = [raster(icon_svg(BLUE, margin=max(1, round(s / 16))), s) for s in sizes]
+        buf = io.BytesIO()
+        frames[-1].save(buf, "ICO", sizes=[(s, s) for s in sizes], append_images=frames[:-1])
+        out.write_bytes(buf.getvalue())
+    elif kind in ("mark", "tile"):
+        px = int(rest)
+        source = icon_svg(BLUE, margin=max(1, round(px / 16))) if kind == "mark" else icon_svg(WHITE, tile=True, rounded=False, margin=11)
+        out.write_bytes(png(raster(source, px)) if out.suffix != ".svg" else source.encode())
+    else:
+        raise SystemExit(f"unknown render spec {spec!r}: use mark:<px>, tile:<px> or ico:<px>,…")
+    return [out]
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args and args[0] == "--render":
+        for p in render(args[1], Path(args[2])):
+            print(p)
+        raise SystemExit
+    if args and args[0] == "--rust":
+        for p in write_rust(Path(args[1])):
+            print(p)
+        raise SystemExit
     if args and args[0] == "--site":
         targets, writer = [Path(a) for a in args[1:]], write_site
     else:
