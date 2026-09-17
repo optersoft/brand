@@ -5,6 +5,9 @@ is a view a layout drops in — the port of `Layout.astro`'s head, minus the par
 site template already owns (`charset`, the viewport, `<html>` itself).
 """
 
+import re
+from pathlib import Path
+
 from frontage import h
 from frontage.head import Meta, Tag, Title
 
@@ -21,6 +24,20 @@ ICONS = [
 ]
 
 LOGO = "/brand/assets/optersoft.png"
+
+#: The mark as the **letter** it is: the *o* of "optersoft", read from `optersoft-o.svg` so the
+#: header can inline it (`header.wordmark`) as the uppercase O — the glyph scaled to the height of the *f*, on
+#: the baseline — with `pter` and `soft` as live text after it. `viewBox` is the glyph's advance ×
+#: its height; `height` and `shift` are the em fractions `icons.py` wrote into the file, which
+#: make an inline <svg> sit exactly where the glyph would.
+_LETTER_SVG = (Path(__file__).parent / "static" / "assets" / "optersoft-o.svg").read_text()
+LETTER = {
+    "viewBox": re.search(r'viewBox="([^"]+)"', _LETTER_SVG).group(1),
+    "d": re.search(r' d="([^"]+)"', _LETTER_SVG).group(1),
+    "fill": re.search(r'fill="(#[0-9a-f]{6})"', _LETTER_SVG).group(1),
+    "height": re.search(r'data-em-height="([^"]+)"', _LETTER_SVG).group(1) + "em",
+    "shift": re.search(r'data-em-shift="([^"]+)"', _LETTER_SVG).group(1) + "em",
+}
 
 #: The chrome's CSS is a **Tailwind source**, not a stylesheet a page links: it opens with
 #: `@custom-variant` and `@source`, which a browser cannot use. A site imports it in its own

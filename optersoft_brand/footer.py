@@ -10,6 +10,7 @@ from frontage import h
 
 from . import links as links_module
 from .head import LOGO
+from .header import letter as _letter
 
 LINK = "text-slate-600 hover:text-blue-600 transition-colors dark:text-slate-400 dark:hover:text-blue-400"
 
@@ -21,6 +22,7 @@ def footer(
     rights="All rights reserved",
     legal="ES B64542335 · D-U-N-S 770940638",
     logo=LOGO,
+    letter=None,
     home=None,
     columns=None,
     socials=True,
@@ -39,10 +41,22 @@ def footer(
             h.div(
                 h.div(
                     h.a(
-                        h.img(src=logo, alt="Optersoft", width="28", height="28", cls="h-7 w-7 rounded-lg"),
-                        h.p(name, cls="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white"),
+                        # `letter` is the mark AS the O of the name — `head.LETTER` — so the row
+                        # is the wordmark and not an icon beside a word; the rest of `name`
+                        # follows it as text, and `name` itself stays whole for the © line.
+                        h.p(
+                            _letter(letter),
+                            name[1:],
+                            cls="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white",
+                        )
+                        if letter
+                        else h.img(src=logo, alt="Optersoft", width="28", height="28", cls="h-7 w-7 rounded-lg"),
+                        None
+                        if letter
+                        else h.p(name, cls="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white"),
                         href=home,
-                        cls="flex items-center gap-2.5",
+                        cls="flex items-center" + ("" if letter else " gap-2.5"),
+                        **({"aria-label": name} if letter else {}),
                     ),
                     h.p(tagline, cls="mt-2 text-slate-500 dark:text-slate-400") if tagline else None,
                     h.p(office, cls="mt-1 text-slate-500 dark:text-slate-400") if office else None,

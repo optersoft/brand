@@ -29,7 +29,7 @@ are the two it is meant to replace.
 from pathlib import Path
 
 from .footer import footer
-from .head import ICONS, LOGO, STYLESHEET, head
+from .head import ICONS, LETTER, LOGO, STYLESHEET, head
 from .header import header, lang_switcher, skip_link, theme_toggle
 from .labels import LABELS, labels
 from .links import OPTERSOFT, OPTERSOFT_COLUMNS, SOCIALS, column, lang, link
@@ -48,6 +48,7 @@ __all__ = [
     "ICONS",
     "KEY",
     "LABELS",
+    "LETTER",
     "LOGO",
     "OPTERSOFT",
     "OPTERSOFT_COLUMNS",

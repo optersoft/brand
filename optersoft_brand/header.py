@@ -185,7 +185,36 @@ def skip_link(label):
     )
 
 
+def letter(letter, cls=""):
+    """The mark inline as the letter it is: an <svg> sized to the o's height on the baseline, so
+    `"pter"` follows it as the rest of the word. `margin-right` repeats the name's
+    `tracking-tight`, which letter-spacing puts after every character but not after an element."""
+    return h.svg(
+        h.path(d=letter["d"], fill=letter["fill"], fill_rule="evenodd"),
+        viewBox=letter["viewBox"],
+        xmlns="http://www.w3.org/2000/svg",
+        cls=f"inline-block w-auto {cls}".strip(),
+        style=f"height:{letter['height']};vertical-align:{letter['shift']};margin-right:-.025em",
+        **{"aria-hidden": "true"},
+    )
+
+
 def wordmark(brand):
+    """The brand cluster. Two shapes: `{"logo": URL, "name": "opter", "suffix": "soft"}` — an
+    image before the name — or `{"letter": LETTER, "name": "pter", "suffix": "soft"}`, where
+    the mark IS the first letter of the name (`label` is what assistive tech reads; default
+    "Optersoft")."""
+    if brand.get("letter"):
+        return h.a(
+            h.span(
+                letter(brand["letter"]),
+                brand["name"],
+                h.span(brand["suffix"], cls="font-light text-slate-400 dark:text-slate-500") if brand.get("suffix") else None,
+            ),
+            href=brand["href"],
+            cls="flex items-center text-lg font-extrabold tracking-tight text-slate-900 dark:text-white",
+            **{"aria-label": brand.get("label", "Optersoft")},
+        )
     return h.a(
         h.img(src=brand["logo"], alt=brand.get("alt", ""), width="32", height="32", cls="h-8 w-8 rounded-lg")
         if brand.get("logo")
