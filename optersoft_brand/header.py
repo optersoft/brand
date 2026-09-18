@@ -199,11 +199,33 @@ def letter(letter, cls=""):
     )
 
 
+def initial(text, cls=""):
+    """The lockup's capital, set live: the font's own uppercase O in the brand blue — the same
+    glyph `optersoft-wordmark.svg` draws, kerning with the `pter` that follows as one word.
+    `#2563eb` is Tailwind's `blue-600`, in both themes: the blue is the brand's, not the
+    surface's."""
+    return h.span(text, cls=f"text-blue-600 {cls}".strip())
+
+
 def wordmark(brand):
-    """The brand cluster. Two shapes: `{"logo": URL, "name": "opter", "suffix": "soft"}` — an
-    image before the name — or `{"letter": LETTER, "name": "pter", "suffix": "soft"}`, where
-    the mark IS the first letter of the name (`label` is what assistive tech reads; default
-    "Optersoft")."""
+    """The brand cluster. Three shapes, newest first:
+
+    - `{"initial": "O", "name": "pter", "suffix": "soft"}` — **the lockup** (2026-09-18): the
+      name as text, its capital in the brand blue, `soft` light. No image and no `aria-label`:
+      the text spells the name, and it is the same picture as `optersoft-wordmark.svg`.
+    - `{"letter": LETTER, "name": "pter", "suffix": "soft"}` — the constructed mark inlined
+      as the first letter (`label` is what assistive tech reads; default "Optersoft").
+    - `{"logo": URL, "name": "opter", "suffix": "soft"}` — an image before the name."""
+    if brand.get("initial"):
+        return h.a(
+            h.span(
+                initial(brand["initial"]),
+                brand["name"],
+                h.span(brand["suffix"], cls="font-light text-slate-400 dark:text-slate-500") if brand.get("suffix") else None,
+            ),
+            href=brand["href"],
+            cls="flex items-center text-lg font-extrabold tracking-tight text-slate-900 dark:text-white",
+        )
     if brand.get("letter"):
         return h.a(
             h.span(

@@ -10,9 +10,22 @@ from frontage import h
 
 from . import links as links_module
 from .head import LOGO
+from .header import initial as _initial
 from .header import letter as _letter
 
 LINK = "text-slate-600 hover:text-blue-600 transition-colors dark:text-slate-400 dark:hover:text-blue-400"
+
+
+def _brand_row(name, wordmark):
+    """The lockup as text, with the rest of `name` in the suffix's light run."""
+    head = wordmark["initial"] + wordmark["name"] + wordmark.get("suffix", "")
+    tail = name[len(head) :] if name.startswith(head) else ""
+    return h.p(
+        _initial(wordmark["initial"]),
+        wordmark["name"],
+        h.span(wordmark.get("suffix", "") + tail, cls="font-light text-slate-400 dark:text-slate-500"),
+        cls="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white",
+    )
 
 
 def footer(
@@ -23,6 +36,7 @@ def footer(
     legal="ES B64542335 · D-U-N-S 770940638",
     logo=LOGO,
     letter=None,
+    wordmark=None,
     home=None,
     columns=None,
     socials=True,
@@ -41,10 +55,15 @@ def footer(
             h.div(
                 h.div(
                     h.a(
-                        # `letter` is the mark AS the O of the name — `head.LETTER` — so the row
-                        # is the wordmark and not an icon beside a word; the rest of `name`
-                        # follows it as text, and `name` itself stays whole for the © line.
-                        h.p(
+                        # `wordmark` is the header's lockup, `{"initial": "O", "name": "pter",
+                        # "suffix": "soft"}` (2026-09-18): the capital in the brand blue, the
+                        # suffix light — and whatever `name` adds after it (", S.L.") stays in the
+                        # light run, so the row reads as the lockup with the legal form after it.
+                        # `letter` is the older shape, the constructed mark AS the O of the name
+                        # (`head.LETTER`). Either way `name` stays whole for the © line.
+                        _brand_row(name, wordmark)
+                        if wordmark
+                        else h.p(
                             _letter(letter),
                             name[1:],
                             cls="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white",
@@ -52,10 +71,10 @@ def footer(
                         if letter
                         else h.img(src=logo, alt="Optersoft", width="28", height="28", cls="h-7 w-7 rounded-lg"),
                         None
-                        if letter
+                        if letter or wordmark
                         else h.p(name, cls="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white"),
                         href=home,
-                        cls="flex items-center" + ("" if letter else " gap-2.5"),
+                        cls="flex items-center" + ("" if letter or wordmark else " gap-2.5"),
                         **({"aria-label": name} if letter else {}),
                     ),
                     h.p(tagline, cls="mt-2 text-slate-500 dark:text-slate-400") if tagline else None,
